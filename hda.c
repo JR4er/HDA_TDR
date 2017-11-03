@@ -1,8 +1,6 @@
 #include "graph.h"
 #include <memory.h>
 
-typedef vertex_t* sequence_t;
-
 static void
 tidy_neighbor(vertex_t* v[], size_t k, size_t n) {
     if (k==0 || n==k) return;
@@ -20,7 +18,14 @@ tidy_neighbor(vertex_t* v[], size_t k, size_t n) {
     else v[j] = x;
 }
 
-sequence_t hda(graph_t* graph, vertex_t* b[]) {
+static inline
+void push(vertex_t** at, vertex_t* u) {
+    u->next = *at;
+    if (u->next) u->next->parent = u;
+    *at = u;
+}
+
+vertex_t* hda(graph_t* graph, vertex_t* b[]) {
     size_t n = graph->vertex_count;
     memset(b, 0, n * sizeof(vertex_t*));
 
@@ -29,21 +34,21 @@ sequence_t hda(graph_t* graph, vertex_t* b[]) {
 
     while (i--) {
         unsigned k = u->k;
-        u->next = b[k]; 
-        b[k] = u;
-        if (u->next) u->next->parent = u;
-        u++;
+        push(&b[k], u++);
     }
 
-    sequence_t seq = NULL;
+    vertex_t* seq = NULL;
     while (--n) while ( (u=b[n]) ) {
         b[n] = u->next;
+
         u->next = seq;
         seq = u;
         u->size = 0;
+
         i = u->k;
         vertex_t** nb = u->neighbors;
         tidy_neighbor(nb, i, u->neigbhor_count);
+
         while (i--) {
             vertex_t* v = nb[i];
             unsigned k = v->k--;
@@ -52,9 +57,7 @@ sequence_t hda(graph_t* graph, vertex_t* b[]) {
             if (b[k] == v) b[k] = v->next;
             else v->parent->next = v->next;
 
-            v->next = b[--k];
-            b[k] = v;
-            if (v->next) v->next->parent = v;
+            push(&b[--k], v);
         }
     }
     return seq;

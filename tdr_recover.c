@@ -102,7 +102,7 @@ void insert(vertex_t* u, vertex_t* p) {
     add_child(p, u);
 }
 
-void tdr(vertex_t* seq, vertex_t* isolate) {
+void tdr_recover(vertex_t* seq, vertex_t* isolate) {
     vertex_t gaurd;
     vertex_t root = { NULL, isolate, &gaurd, NULL, NULL, 0,0,0,0,0 };
 

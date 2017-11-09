@@ -29,10 +29,7 @@ void unmark(vertex_t* v) {
 
 static
 vertex_t* lca(vertex_t* root) {
-    while (root->path) {
-        root->size++;
-        root = root->path;
-    }
+    while (root->path) (root = root->path)->size++; 
     return root;
 }
 
@@ -71,10 +68,13 @@ void add_child(vertex_t* p, vertex_t* u) {
     u->parent = p;
 }
 
+
+
 static
 void insert(vertex_t* u, vertex_t* p) {
     vertex_t* child = move_marked(NULL, &p->child);
     unsigned sum = p->sum_marked_child_size;
+
     while (child) {
 
         vertex_t** max_at = max_size_at(&child);
@@ -89,20 +89,21 @@ void insert(vertex_t* u, vertex_t* p) {
         add_child(p, max);
     
         max->size += sum - max_size + 1;
-
         child = move_marked(child, &max->child);
         sum -= max_size - smcs;
+
         p = max;
     }
-    if (child) {
-        u->child = child;
-        set_parent(child, u);
-        u->size += sum;
-    }
+
+    u->size = sum + 1;
+    u->child = child;
+    set_parent(child, u);
     add_child(p, u);
 }
 
-void tdr_recover(vertex_t* seq, vertex_t* isolate) {
+
+
+vertex_t* tdr_recover(vertex_t* seq, vertex_t* isolate) {
     vertex_t gaurd;
     vertex_t root = { NULL, isolate, &gaurd, NULL, NULL, 0,0,0,0,0 };
 
@@ -110,7 +111,6 @@ void tdr_recover(vertex_t* seq, vertex_t* isolate) {
 
     vertex_t* u;
     while ((u=seq)) {
-
         seq = seq->next;
 
         vertex_t** nb = u->neighbors;
@@ -119,7 +119,6 @@ void tdr_recover(vertex_t* seq, vertex_t* isolate) {
         gaurd.marked = 1;
         while (i--) mark(nb[i]);
 
-        u->size = 1;
         insert(u, lca(&root));
 
         gaurd.marked = 0;
@@ -128,4 +127,5 @@ void tdr_recover(vertex_t* seq, vertex_t* isolate) {
         while (i--) unmark(nb[i]);
         unmark(u);
     }
+    return NULL;
 }

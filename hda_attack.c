@@ -21,21 +21,18 @@ tidy_neighbor(vertex_t* v[], size_t k, size_t n) {
 static inline
 void push(vertex_t** at, vertex_t* u) {
     u->next = *at;
-    if (u->next) u->next->parent = u;
+    if (*at) (*at)->parent = u;
     *at = u;
 }
 
-vertex_t* hda(graph_t* graph, vertex_t* b[]) {
+vertex_t* hda_attack(graph_t* graph, vertex_t* b[]) {
     size_t n = graph->vertex_count;
     memset(b, 0, n * sizeof(vertex_t*));
 
     vertex_t* u = graph->vertices;
     size_t i = n;
 
-    while (i--) {
-        unsigned k = u->k;
-        push(&b[k], u++);
-    }
+    while (i--) { unsigned k = u->k; push(&b[k], u++); }
 
     vertex_t* seq = NULL;
     while (--n) while ( (u=b[n]) ) {

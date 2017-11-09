@@ -27,11 +27,12 @@ vertex_t* union_set(vertex_t* x, vertex_t* y) {
     return y->path = x;
 }
 
-void simple_recover(vertex_t* seq, vertex_t* isolate) {
+vertex_t* simple_recover(vertex_t* attack, vertex_t* isolate) {
+
     while (isolate) isolate = make_set(isolate)->next;
 
+    vertex_t* seq = attack;
     while (seq) {
-        make_set(seq);
         vertex_t** nb = seq->neighbors;
         unsigned i = seq->k;
         vertex_t* set = make_set(seq);
@@ -42,4 +43,5 @@ void simple_recover(vertex_t* seq, vertex_t* isolate) {
         seq->size = set->sum_marked_child_size;
         seq = seq->next;
     }
+    return attack;
 }
